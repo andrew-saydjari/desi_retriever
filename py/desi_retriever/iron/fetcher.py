@@ -68,7 +68,7 @@ def fetch_gaia_index():
                              D['subsurvey'], D['hpx'], D['row'])
 
 
-def read_spectra(url, user, pwd, targetid, expid, fiber, mask, ivar):
+def read_spectra(url, user, pwd, targetid, expid, fiber, mask, ivar, resMat):
     kw = dict(auth=(user, pwd), verify=False)
     block_size = 2880 * 10  # caching block
     with httpio.open(url, block_size=block_size, **kw) as fp:
@@ -108,6 +108,11 @@ def read_spectra(url, user, pwd, targetid, expid, fiber, mask, ivar):
             for arm in 'BRZ':
                 ivars[arm] = hdus[arm + '_IVAR'].section
 
+        ress = {}
+        if resMat:
+            for arm in 'BRZ':
+                ress[arm] = hdus[arm + '_RESOLUTION'].section
+
         rets = []
         for xid in xids:
             ret = {}
@@ -120,6 +125,10 @@ def read_spectra(url, user, pwd, targetid, expid, fiber, mask, ivar):
             if ivar:
                 for arm in 'BRZ':
                     ret[arm.lower() + '_ivar'] = ivars[arm][xid, :]
+
+            if resMat:
+                for arm in 'BRZ':
+                    ret[arm.lower() + '_resolution'] = ress[arm][xid, :]
 
             rets.append(ret)
         si.cache[url] = copy.copy(fp._cache)
@@ -185,7 +194,8 @@ def get_specs(gaia_edr3_source_id=None,
               subsurvey=None,
               spectrograph=None,
               mask=False,
-              ivar=False):
+              ivar=False,
+              resMat=False):
     """
     Get DESI spectra
     
