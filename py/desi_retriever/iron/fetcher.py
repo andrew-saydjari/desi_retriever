@@ -270,7 +270,7 @@ def get_specs(gaia_edr3_source_id=None,
 
     else:
         raise Exception('oops')
-    return read_spectra(url, user, pwd, targetid, expid, fiber, mask, ivar)
+    return read_spectra(url, user, pwd, targetid, expid, fiber, mask, ivar, resMat)
 
 
 @lrudecorator(100)
